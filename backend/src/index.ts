@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.get("/conversation", async (req, res) => {
+app.post("/conversation", async (req, res) => {
     //GET QUERY FROM USER
     const { query } = req.body
 
@@ -30,7 +30,7 @@ app.get("/conversation", async (req, res) => {
     //ALSO STREAM BACK THE RESOURCES AND THE FOLLOW UP QUESTIONS TO THE USER(WICH WE CAN DO THAT FROM DIFFERENT PARALLEL LLM CALL)
 
 
-
+    res.json(result)
 });
 
 app.listen(3000, () => {

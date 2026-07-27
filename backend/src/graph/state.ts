@@ -11,7 +11,7 @@ export const ResearchState = new StateSchema({
         })
     ).default([]),
     answer: z.string().default(""),
-    followUpQuestions: z.array(z.string()).default([])
+    followUpQuestions: z.string()
 
 })
 
