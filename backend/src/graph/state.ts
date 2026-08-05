@@ -10,9 +10,13 @@ export const ResearchState = new StateSchema({
             score: z.number(),
         })
     ).default([]),
+    searchSummary:z.string(),
     answer: z.string().default(""),
-    followUpQuestions: z.string()
-
+    followUpQuestions: z.string(),
+    answerAttempts : z.number().default(0),
+    reviewPassed : z.boolean().default(false),
+    reviewFeedback:z.string(),
+    reanswer: z.string().default(""),
 })
 
 export type ResearchStateType = typeof ResearchState.State;

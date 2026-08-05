@@ -7,7 +7,7 @@ export async function webSearch(state:ResearchStateType){
     });
 
     return {
-        searchResults : queryResults.results.map((result)=>({
+        searchResults : queryResults.results.slice(0,4).map((result)=>({
             title:result.title,
             url:result.url,
             content:result.content,

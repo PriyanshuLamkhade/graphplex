@@ -8,22 +8,25 @@ export async function generateAnswer(state: ResearchStateType) {
         URL:${results.url},
         Content:${results.content}
     `).join("\n\n")
-    const userPrompt = ANSWER_PROMPT
-    .replace("{WEB_SEARCH_RESULTS}",context)
-    .replace("{USER_QUERY}",JSON.stringify(state.query))
-    
+
+    let userPrompt = ANSWER_PROMPT
+        .replace("{WEB_SEARCH_RESULTS}", context)
+        .replace("{USER_QUERY}", JSON.stringify(state.query))
+
     const response = await ollama.chat({
         model: "qwen3.5:9b",
         messages: [
             { role: "system", content: ANSWER_SYSTEM_PROMPT },
-            { role: "user", content: userPrompt}
+            { role: "user", content: userPrompt }
         ],
-        "think": "medium"
+        think: "low",
+        options: {
+            num_predict: 1024
+        },
     })
-    console.log(response.message.content)
-
 
     return {
-        answer: response.message.content
+        answer: response.message.content,
+        answerAttempts:state.answerAttempts + 1
     };
 }

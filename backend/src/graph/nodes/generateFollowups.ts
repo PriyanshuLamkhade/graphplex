@@ -1,11 +1,6 @@
 import { FOLLOWUP_PROMPT, FOLLOWUP_SYSTEM_PROMPT } from "../../prompt";
 import type { ResearchStateType } from "../state";
-import ollama from "ollama";
-import { z } from "zod";
-
-// const FollowUpSchema = z.object({
-//   followUpQuestions: z.array(z.string())
-// });
+import ollama from 'ollama';
 
 
 export async function generateFollowUps(state: ResearchStateType) {
@@ -24,9 +19,8 @@ export async function generateFollowUps(state: ResearchStateType) {
       { role: "system", content: FOLLOWUP_SYSTEM_PROMPT },
       { role: "user", content: userPrompt }
     ],
-    "think": "low",
+    think: false,
   })
-
 //   const parsed = FollowUpSchema.parse(
 //   JSON.parse(response.message.content)
 // );
