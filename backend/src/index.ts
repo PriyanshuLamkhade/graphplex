@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from "express";
 import { tavily } from "@tavily/core";
-import 'dotenv/config';
 import cors from "cors";
 import { graph } from "./graph/graph.js";
 
