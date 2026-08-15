@@ -1,0 +1,16 @@
+@import "../styles/globals.css";
+
+@layer base {
+  :root {
+    @apply font-sans;
+  }
+
+ 
+}
+
+body{
+  background-color: rgb(26, 25, 25);
+}
+button{
+  cursor: pointer;
+}
