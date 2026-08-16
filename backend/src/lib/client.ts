@@ -3,6 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 export function createSupabaseClient() {  
   return createClient(
     "https://cehmhmhgqpnknagvrrpq.supabase.co",
-  "sb_publishable_dqvMnTQfiWje_UqHF5_9lA_4bI8VRd3"    
+    process.env.SUPABASE_API_SECRET!,   
   )
 }

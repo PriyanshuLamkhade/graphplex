@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/client"
+import { createSupabaseClient } from "@/lib/client"
 
-const supabase = createClient()
+const supabase = createSupabaseClient()
 export default function Auth(){
     async function login(provider: "google" | "github"){
         const {data,error} = await supabase.auth.signInWithOAuth({
