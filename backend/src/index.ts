@@ -4,19 +4,74 @@ import { tavily } from "@tavily/core";
 import cors from "cors";
 import { graph } from "./graph/graph.js";
 import { middleware } from './middleware.js';
-
+import { prisma } from '../db.js';
+import type { Request } from "express"
 export const tavily_client = tavily({ apiKey: process.env.TAVIL_API_KEY });
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.get("/conversations",middleware,async(req,res)=>{
-    res.json({
-        userId : req.userId
-    })
+    try {
+        const userId = req.userId
+        if (!userId) {
+            return res.json({
+                message: "User Id not found"
+            })
+        }
+        const conversations = await prisma.conversation.findMany({
+            where: {
+                userId: userId
+            },select: {
+            id: true,
+            title: true,
+            slug: true
+        }
+        })
+    
+        res.json({
+            conversations
+        })
+    } catch (error) {
+       res.json("Error in getting all conversations") 
+    }
 })
 
 app.get("/conversations/:conversationId",middleware,async(req,res)=>{
-
+    try {
+        const conversationId = req.params.conversationId as string;;
+        if (!req.userId) {
+            return res.json({
+                message: "User Id not found"
+            })
+        }
+        if (!conversationId) {
+            return res.json({
+                message: "Conversation Id not found"
+            })
+        }
+        const conversation = await prisma.conversation.findFirst({
+            where: {
+                id: conversationId,
+                userId: req.userId
+            },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                messages: {
+                    orderBy: {
+                        createdAt: "asc"
+                    },
+                    take: 20
+                }
+            }
+        });
+        if(!conversation) return res.json({message:"Did not find conversations"})
+        
+        res.json(conversation)
+    } catch (error) {
+        res.json("Error in getting conversation with id")
+    }
 })
 
 app.post("/perplexity_ask",middleware, async (req, res) => {
