@@ -5,7 +5,6 @@ import cors from "cors";
 import { graph } from "./graph/graph.js";
 import { middleware } from './middleware.js';
 import { prisma } from '../db.js';
-import type { Request } from "express"
 import { webSearch } from './graph/nodes/webSearch.js';
 import { summaryWebSearch } from './graph/nodes/summaryWebSearch.js';
 export const tavily_client = tavily({ apiKey: process.env.TAVIL_API_KEY });
@@ -74,10 +73,10 @@ app.get("/conversations/:conversationId",middleware,async(req,res)=>{
     }
 })
 
-app.post("/perplexity_ask",middleware, async (req, res) => {
+app.post("/perplexity_ask", async (req, res) => {
     const { query } = req.body
     try {
-        const userId = req.userId
+        const userId = "388729c8-8c2d-4406-b357-86c65ad0bbf0"
         if(!userId){
             return res.json({
                     message: "User Id not found"
@@ -101,14 +100,18 @@ app.post("/perplexity_ask",middleware, async (req, res) => {
 
         const webSearchResults = await webSearch(query)
         
-        const summaryWebSearchResult:any= await summaryWebSearch(query,webSearchResults)
-
+        const summaryWebSearchResult= await summaryWebSearch(query,webSearchResults)
 
         const result = await graph.invoke({
             query: query,
             searchResults: webSearchResults,
             searchSummary: summaryWebSearchResult,
-        });
+        },{
+        configurable: {
+            thread_id: conversation.id
+        }
+    }
+    );
         const finalAnswer = result.reanswer || result.answer;
        
         
@@ -141,6 +144,7 @@ app.post("/perplexity_ask",middleware, async (req, res) => {
             },
             searchResults: webSearchResults,
             followUpQuestions: result.followUpQuestions,
+            result:result
         });
     } catch (error) {
         console.error(error);

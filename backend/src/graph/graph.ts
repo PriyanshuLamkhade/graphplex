@@ -1,11 +1,10 @@
 import { END, START, StateGraph } from "@langchain/langgraph";
 import { ResearchState } from "./state";
-import { webSearch } from "./nodes/webSearch";
 import { generateAnswer } from "./nodes/generateAnswer";
 import { generateFollowUps } from "./nodes/generateFollowups";
 import { answerReviewer, routeAfterReview } from "./nodes/reviwerAnswer";
-import { summaryWebSearch } from "./nodes/summaryWebSearch";
 import { regenerateAnswer } from "./nodes/regenerateAnswer";
+import { MemorySaver } from "@langchain/langgraph";
 
 const builder = new StateGraph(ResearchState)
     //.addNode("webSearch", webSearch)
@@ -34,4 +33,8 @@ const builder = new StateGraph(ResearchState)
     .addEdge("regenerateAnswer",END)
     .addEdge("generateFollowUps",END)
 
-export const graph = builder.compile()
+
+const checkpointer = new MemorySaver();
+export const graph = builder.compile({
+    checkpointer
+})

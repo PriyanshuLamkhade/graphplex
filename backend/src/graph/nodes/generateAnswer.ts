@@ -36,7 +36,7 @@ ${state.searchSummary}
             { role: "system", content: ANSWER_SYSTEM_PROMPT },
             { role: "user", content: userPrompt }
         ],
-        think: "low",
+        think: false,
         options: {
             num_predict: 1024
         },

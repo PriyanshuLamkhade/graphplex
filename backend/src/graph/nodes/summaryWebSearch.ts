@@ -25,12 +25,11 @@ export async function summaryWebSearch(
             { role: "system", content: SUMMARY_SYSTEM_PROMPT },
             { role: "user", content: userPrompt }
         ],
-        think: "low",
+        think: false,
         options: {
             num_predict: 1024
         },
     })
-
      return response.message.content
     
 }
