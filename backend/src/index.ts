@@ -24,7 +24,6 @@ app.get("/conversations",middleware,async(req,res)=>{
             },select: {
             id: true,
             title: true,
-            slug: true
         }
         })
     
@@ -57,7 +56,6 @@ app.get("/conversations/:conversationId",middleware,async(req,res)=>{
             select: {
                 id: true,
                 title: true,
-                slug: true,
                 messages: {
                     orderBy: {
                         createdAt: "asc"
@@ -75,15 +73,63 @@ app.get("/conversations/:conversationId",middleware,async(req,res)=>{
 })
 
 app.post("/perplexity_ask",middleware, async (req, res) => {
-    //GET QUERY FROM USER
     const { query } = req.body
+    try {
+        const userId = req.userId
+        if(!userId){
+            return res.json({
+                    message: "User Id not found"
+                })
+        }
+    
+        const conversation = await prisma.conversation.create({
+            data:{
+                userId:userId,
+                title:query.slice(0, 80)
+            }
+        })
+        const userMessage = await prisma.message.create({
+            data:{
+                content:query,
+                role: "User",
+                conversationId : conversation.id
+            }
+        })
+        const result = await graph.invoke({
+            query: query,
+        });
+        const finalAnswer = result.reanswer || result.answer;
+       
+        
+        const assistantMessage = await prisma.message.create({
+            data: {
+                content: finalAnswer,
+                role: "Assistant",
+                conversationId: conversation.id,
+                searchResults: result.searchResults,
+            }
+        });
+    
+        return res.json({   
+            conversation: {
+                id: conversation.id,
+                title: conversation.title,
+            },
+            message: {
+                id: assistantMessage.id,
+                role: assistantMessage.role,
+                content: assistantMessage.content,
+                searchResults: assistantMessage.searchResults,
+            },
+            followUpQuestions: result.followUpQuestions,
+        });
+    } catch (error) {
+        console.error(error);
 
-    const result = await graph.invoke({
-        query: query,
-    });
-
-
-    res.json(result)
+        return res.status(500).json({
+            message: "Something went wrong while processing the request",
+        });
+    }
 });
 
 app.post("/perplexity_ask/follow_up",middleware, async (req, res) => {
