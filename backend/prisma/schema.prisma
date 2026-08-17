@@ -20,6 +20,8 @@ model Conversation {
   id       String    @id @default(uuid())
   title    String?
   userId   String
+  searchResults  Json?
+  searchSummary String?
   messages Message[]
   user     User      @relation(fields: [userId], references: [id])
 }
@@ -27,7 +29,6 @@ model Conversation {
 model Message {
   id             Int          @id @default(autoincrement())
   content        String
-  searchResults  Json?
   role           MessageRole
   conversationId String
   createdAt      DateTime     @default(now())

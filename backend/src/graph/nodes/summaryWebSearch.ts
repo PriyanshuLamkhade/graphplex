@@ -1,7 +1,15 @@
-import type { ResearchStateType } from "../state";
+
 import ollama from 'ollama'
-export async function summaryWebSearch(state: ResearchStateType) {
-    const context = state.searchResults.map((results) => `
+export async function summaryWebSearch(
+    query: string,
+    searchResults: {
+        title: string;
+        url: string;
+        content: string;
+        score: number;
+    }[]
+){
+    const context = searchResults.map((results) => `
         TITLE:${results.title},
         URL:${results.url},
         Content:${results.content}
@@ -9,7 +17,7 @@ export async function summaryWebSearch(state: ResearchStateType) {
 
     let userPrompt = SUMMARY_PROMPT
         .replace("{WEB_SEARCH_RESULTS}", context)
-        .replace("{USER_QUERY}", JSON.stringify(state.query))
+        .replace("{USER_QUERY}", query)
     
     const response = await ollama.chat({
         model: "qwen3.5:9b",
@@ -23,11 +31,8 @@ export async function summaryWebSearch(state: ResearchStateType) {
         },
     })
 
-     return {
-        searchSummary: response.message.content,
-    };
-
-
+     return response.message.content
+    
 }
 
 

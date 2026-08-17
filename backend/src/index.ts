@@ -6,6 +6,8 @@ import { graph } from "./graph/graph.js";
 import { middleware } from './middleware.js';
 import { prisma } from '../db.js';
 import type { Request } from "express"
+import { webSearch } from './graph/nodes/webSearch.js';
+import { summaryWebSearch } from './graph/nodes/summaryWebSearch.js';
 export const tavily_client = tavily({ apiKey: process.env.TAVIL_API_KEY });
 const app = express();
 app.use(express.json());
@@ -95,8 +97,17 @@ app.post("/perplexity_ask",middleware, async (req, res) => {
                 conversationId : conversation.id
             }
         })
+        //creating the search results
+
+        const webSearchResults = await webSearch(query)
+        
+        const summaryWebSearchResult:any= await summaryWebSearch(query,webSearchResults)
+
+
         const result = await graph.invoke({
             query: query,
+            searchResults: webSearchResults,
+            searchSummary: summaryWebSearchResult,
         });
         const finalAnswer = result.reanswer || result.answer;
        
@@ -106,9 +117,17 @@ app.post("/perplexity_ask",middleware, async (req, res) => {
                 content: finalAnswer,
                 role: "Assistant",
                 conversationId: conversation.id,
-                searchResults: result.searchResults,
             }
         });
+        const addWebSearch = await prisma.conversation.update({
+            where:{
+                id:conversation.id
+            },
+            data:{
+                searchResults:webSearchResults,
+                searchSummary:summaryWebSearchResult
+            }
+        })
     
         return res.json({   
             conversation: {
@@ -119,8 +138,8 @@ app.post("/perplexity_ask",middleware, async (req, res) => {
                 id: assistantMessage.id,
                 role: assistantMessage.role,
                 content: assistantMessage.content,
-                searchResults: assistantMessage.searchResults,
             },
+            searchResults: webSearchResults,
             followUpQuestions: result.followUpQuestions,
         });
     } catch (error) {

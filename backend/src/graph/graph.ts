@@ -8,19 +8,22 @@ import { summaryWebSearch } from "./nodes/summaryWebSearch";
 import { regenerateAnswer } from "./nodes/regenerateAnswer";
 
 const builder = new StateGraph(ResearchState)
-    .addNode("webSearch", webSearch)
+    //.addNode("webSearch", webSearch)
+    // .addNode("summaryWebSearch",summaryWebSearch)
     .addNode("generateAnswer", generateAnswer)
     .addNode("generateFollowUps", generateFollowUps)
     .addNode("answerReviewer",answerReviewer)
-    .addNode("summaryWebSearch",summaryWebSearch)
     .addNode("regenerateAnswer",regenerateAnswer)
 
-    .addEdge(START,"webSearch")
-    .addEdge("webSearch","summaryWebSearch")
+    // .addEdge(START,"webSearch")
+    // .addEdge("webSearch","summaryWebSearch")
     
-    .addEdge("summaryWebSearch","generateAnswer")
+    // .addEdge("summaryWebSearch","generateAnswer")
 
-    .addEdge("webSearch","generateFollowUps")
+    // .addEdge("webSearch","generateFollowUps")
+
+    .addEdge(START,"generateAnswer")
+    .addEdge(START,"generateFollowUps")
     .addEdge("generateAnswer","answerReviewer")
     // Passed -> end
     // Failed -> regenerate

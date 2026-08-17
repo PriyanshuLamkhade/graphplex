@@ -11,6 +11,8 @@ export const ResearchState = new StateSchema({
         })
     ).default([]),
     searchSummary:z.string(),
+    // for /followups
+    conversationHistory: z.string().default(""),
     answer: z.string().default(""),
     followUpQuestions: z.string(),
     answerAttempts : z.number().default(0),
