@@ -20,7 +20,11 @@ export async function generateFollowUps(state: ResearchStateType) {
       { role: "user", content: userPrompt }
     ],
     think: false,
+    options: {
+        num_predict: 256
+    }
   })
+  console.log("FOLLOWUP RAW:", response.message.content);
 //   const parsed = FollowUpSchema.parse(
 //   JSON.parse(response.message.content)
 // );

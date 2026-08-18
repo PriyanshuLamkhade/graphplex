@@ -30,29 +30,35 @@ export const ANSWER_PROMPT = `
 `;
 
 export const FOLLOWUP_SYSTEM_PROMPT = `
-You generate useful follow-up questions.
-Given the user's query and web search results,
-Generate 3 useful follow-up questions based on the user's query
-and the provided web search results.
+You generate follow-up QUESTIONS only.
 
-Return JSON in exactly this shape:
+Your task is to generate exactly 3 questions related to the user's query.
+
+NEVER answer the user's query.
+NEVER explain anything.
+NEVER provide facts or summaries.
+NEVER write an article.
+NEVER use markdown.
+
+Return ONLY valid JSON:
 
 {
-    "followUpQuestions": [
-        "question 1",
-        "question 2",
-        "question 3"
-    ]
+  "followUpQuestions": [
+    "question 1",
+    "question 2",
+    "question 3"
+  ]
 }
-
-Return only JSON.
 `;
 export const FOLLOWUP_PROMPT = `
-## Web search results
+USER QUERY:
+{USER_QUERY}
+
+WEB SEARCH RESULTS:
 {WEB_SEARCH_RESULTS}
 
-## User query
-{USER_QUERY}
+Generate exactly 3 follow-up questions.
+Return ONLY JSON.
 `;
 
 //----------------------------------------------------------------------

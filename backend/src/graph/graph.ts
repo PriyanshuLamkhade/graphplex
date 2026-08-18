@@ -7,25 +7,15 @@ import { regenerateAnswer } from "./nodes/regenerateAnswer";
 import { MemorySaver } from "@langchain/langgraph";
 
 const builder = new StateGraph(ResearchState)
-    //.addNode("webSearch", webSearch)
-    // .addNode("summaryWebSearch",summaryWebSearch)
     .addNode("generateAnswer", generateAnswer)
     .addNode("generateFollowUps", generateFollowUps)
     .addNode("answerReviewer",answerReviewer)
     .addNode("regenerateAnswer",regenerateAnswer)
 
-    // .addEdge(START,"webSearch")
-    // .addEdge("webSearch","summaryWebSearch")
-    
-    // .addEdge("summaryWebSearch","generateAnswer")
-
-    // .addEdge("webSearch","generateFollowUps")
-
     .addEdge(START,"generateAnswer")
     .addEdge(START,"generateFollowUps")
     .addEdge("generateAnswer","answerReviewer")
-    // Passed -> end
-    // Failed -> regenerate
+
     .addConditionalEdges("answerReviewer", routeAfterReview, {
         end: END,
         regenerate: "regenerateAnswer"

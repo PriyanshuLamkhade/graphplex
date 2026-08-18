@@ -73,9 +73,9 @@ app.get("/conversations/:conversationId",middleware,async(req,res)=>{
     }
 })
 
-app.post("/perplexity_ask", async (req, res) => {
-    const { query } = req.body
+app.post("/conversation_ask",async (req, res) => {
     try {
+        const { query } = req.body
         const userId = "388729c8-8c2d-4406-b357-86c65ad0bbf0"
         if(!userId){
             return res.json({
@@ -89,14 +89,13 @@ app.post("/perplexity_ask", async (req, res) => {
                 title:query.slice(0, 80)
             }
         })
-        const userMessage = await prisma.message.create({
+       await prisma.message.create({
             data:{
                 content:query,
                 role: "User",
                 conversationId : conversation.id
             }
         })
-        //creating the search results
 
         const webSearchResults = await webSearch(query)
         
@@ -122,7 +121,8 @@ app.post("/perplexity_ask", async (req, res) => {
                 conversationId: conversation.id,
             }
         });
-        const addWebSearch = await prisma.conversation.update({
+        
+        await prisma.conversation.update({
             where:{
                 id:conversation.id
             },
@@ -144,7 +144,7 @@ app.post("/perplexity_ask", async (req, res) => {
             },
             searchResults: webSearchResults,
             followUpQuestions: result.followUpQuestions,
-            result:result
+            reuslt:result
         });
     } catch (error) {
         console.error(error);
@@ -155,12 +155,84 @@ app.post("/perplexity_ask", async (req, res) => {
     }
 });
 
-app.post("/perplexity_ask/follow_up",middleware, async (req, res) => {
+app.post("/conversation_ask/follow_up", async (req, res) => {
+    try {
+        const {conversationId,query} = req.body
+        const userId = "388729c8-8c2d-4406-b357-86c65ad0bbf0"
+    
+        const conversation = await prisma.conversation.findFirst({
+            where:{
+                userId:userId, id:conversationId
+            },include:{
+                messages:{
+                    orderBy:{createdAt:"desc"},
+                    take:6
+                }
+    
+            }
+        })
+        if(!conversation){
+            return res.json({message:"Couldnot find conversation"})
+        }
+        const conversationHistory = conversation.messages
+        .reverse()
+        .map(message => `${message.role}: ${message.content}`)
+        .join("\n\n");
+
+        await prisma.message.create({
+            data:{
+                content:query,
+                role: "User",
+                conversationId : conversation.id
+            }
+        })
+
+        const result = await graph.invoke({
+                query: query,
+                conversationHistory:conversationHistory,
+                searchSummary: conversation?.searchSummary ?? "",
+            },{
+            configurable: {
+                thread_id: conversation.id
+            }
+        })
+        if(!result){
+            return res.json({message:"Results not found"})
+        }
+        const finalAnswer = result.reanswer || result.answer;
+    
+        const assistantMessage = await prisma.message.create({
+            data: {
+                content: finalAnswer,
+                role: "Assistant",
+                conversationId: conversation.id,
+            }
+        });
+    
+        res.json({
+            conversation: {
+                    id: conversation.id,
+                    title: conversation.title,
+                },
+            message: {
+                    id: assistantMessage.id,
+                    role: assistantMessage.role,
+                    content: assistantMessage.content,
+                },
+            followUpQuestions: result.followUpQuestions,
+            reuslt:result
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({
+            message:"Something wrong finding answer for followup",
+        })
+    }
 
 })
 
 app.listen(3001, () => {
-    console.log("Server is running on port 3000");
+    console.log("Server is running on port 3001");
 });
 
 
