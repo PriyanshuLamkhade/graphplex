@@ -17,7 +17,7 @@ export const ResearchState = new StateSchema({
     followUpQuestions: z.string(),
     answerAttempts : z.number().default(0),
     reviewPassed : z.boolean().default(false),
-    reviewFeedback:z.string(),
+    reviewFeedback:z.string().default(""),
     reanswer: z.string().default(""),
 })
 

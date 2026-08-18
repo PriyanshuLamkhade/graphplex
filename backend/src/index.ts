@@ -119,19 +119,11 @@ app.post("/conversation_ask",async (req, res) => {
                 content: finalAnswer,
                 role: "Assistant",
                 conversationId: conversation.id,
+                searchResults:webSearchResults.map(result => result.url),
+                searchSummary:summaryWebSearchResult
             }
         });
         
-        await prisma.conversation.update({
-            where:{
-                id:conversation.id
-            },
-            data:{
-                searchResults:webSearchResults,
-                searchSummary:summaryWebSearchResult
-            }
-        })
-    
         return res.json({   
             conversation: {
                 id: conversation.id,
@@ -141,6 +133,7 @@ app.post("/conversation_ask",async (req, res) => {
                 id: assistantMessage.id,
                 role: assistantMessage.role,
                 content: assistantMessage.content,
+                
             },
             searchResults: webSearchResults,
             followUpQuestions: result.followUpQuestions,
@@ -166,7 +159,7 @@ app.post("/conversation_ask/follow_up", async (req, res) => {
             },include:{
                 messages:{
                     orderBy:{createdAt:"desc"},
-                    take:6
+                    take:2
                 }
     
             }
@@ -187,10 +180,15 @@ app.post("/conversation_ask/follow_up", async (req, res) => {
             }
         })
 
+        const webSearchResults = await webSearch(query)
+        
+        const summaryWebSearchResult= await summaryWebSearch(query,webSearchResults)
+
         const result = await graph.invoke({
                 query: query,
                 conversationHistory:conversationHistory,
-                searchSummary: conversation?.searchSummary ?? "",
+                searchResults: webSearchResults,
+                searchSummary: summaryWebSearchResult,
             },{
             configurable: {
                 thread_id: conversation.id
@@ -206,6 +204,8 @@ app.post("/conversation_ask/follow_up", async (req, res) => {
                 content: finalAnswer,
                 role: "Assistant",
                 conversationId: conversation.id,
+                searchResults: webSearchResults.map(result => result.url),
+                searchSummary: summaryWebSearchResult
             }
         });
     

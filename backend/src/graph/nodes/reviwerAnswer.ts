@@ -8,7 +8,8 @@ export async function answerReviewer(state: ResearchStateType) {
     const prompt = REVIEW_PROMPT
         .replace("{USER_QUERY}", state.query)
         .replace("{RESEARCH_SUMMARY}", state.searchSummary)
-        .replace("{GENERATED_ANSWER}", state.answer);
+        .replace("{GENERATED_ANSWER}", state.answer)
+        .replace("{HISTORY}", state.conversationHistory);
 
     const response = await ollama.chat({
         model: "qwen3.5:9b",
@@ -28,9 +29,6 @@ export async function answerReviewer(state: ResearchStateType) {
 
         format: "json",
 
-        options: {
-            num_predict: 200,
-        },
     });
 
     if (

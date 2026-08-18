@@ -7,7 +7,8 @@ export async function regenerateAnswer(state: ResearchStateType) {
         .replace("{USER_QUERY}", state.query)
         .replace("{RESEARCH_SUMMARY}", state.searchSummary)
         .replace("{PREVIOUS_ANSWER}", state.answer)
-        .replace("{REVIEWER_FEEDBACK}", state.reviewFeedback);
+        .replace("{REVIEWER_FEEDBACK}", state.reviewFeedback)
+        .replace("{HISTORY}", state.conversationHistory);
 
     const response = await ollama.chat({
         model: "qwen3.5:9b",
@@ -35,25 +36,30 @@ export async function regenerateAnswer(state: ResearchStateType) {
         answerAttempts: state.answerAttempts + 1,
     };
 }
-
 const REGENERATE_SYSTEM_PROMPT = `
-You are an expert AI assistant.
+You are an answer correction assistant.
 
-Your task is to improve an existing answer using reviewer feedback.
+Your task is to correct an existing answer using the reviewer feedback.
 
 Rules:
 
 - Use ONLY the provided research summary as factual evidence.
 - Never use outside knowledge.
-- Preserve all correct information from the previous answer.
-- Correct only the issues identified by the reviewer.
-- Do not introduce unsupported facts.
-- Do not remove useful information unless it is incorrect.
-- If reviewer feedback conflicts with the research summary, trust the research summary.
+- Treat the research summary as the only factual source.
+- Use conversation history only to understand the context of the current query.
+- Do not use conversation history as evidence for new factual claims.
 
-Your goal is to produce a more accurate version of the answer while changing as little as necessary.
+IMPORTANT:
+- Every issue identified by the reviewer MUST be fixed.
+- Remove unsupported claims identified by the reviewer.
+- Do not preserve a claim just because it appeared in the previous answer.
+- Do not introduce new claims while fixing the answer.
+- If a claim cannot be supported by the research summary, remove it.
+- Preserve supported information from the previous answer when possible.
+- Answer the user's CURRENT query directly.
+
+Return ONLY the corrected answer.
 `;
-
 const REGENERATE_PROMPT = `
 ## USER QUERY
 
@@ -71,14 +77,22 @@ const REGENERATE_PROMPT = `
 
 {REVIEWER_FEEDBACK}
 
-Rewrite the answer by fixing only the issues identified in the reviewer feedback.
+## CONVERSATION HISTORY
 
-Requirements:
+{HISTORY}
 
-- Preserve accurate information.
-- Remove unsupported claims.
-- Improve factual correctness.
-- Base every statement only on the research summary.
+Rewrite the previous answer.
 
-Return only the improved answer.
-`; 
+You MUST fix every issue identified in REVIEWER FEEDBACK.
+
+Any claim explicitly identified as unsupported by the reviewer must be
+removed unless it is directly supported by the RESEARCH SUMMARY.
+
+Do not invent replacement information.
+
+Do not add new factual claims.
+
+Use the conversation history only to understand the user's context.
+
+Return only the corrected answer.
+`;
