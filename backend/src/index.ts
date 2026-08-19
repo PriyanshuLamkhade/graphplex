@@ -7,6 +7,7 @@ import { middleware } from './middleware.js';
 import { prisma } from '../db.js';
 import { webSearch } from './graph/nodes/webSearch.js';
 import { summaryWebSearch } from './graph/nodes/summaryWebSearch.js';
+import { contextualizeQuery } from './ContextualizeQuery.js';
 export const tavily_client = tavily({ apiKey: process.env.TAVIL_API_KEY });
 const app = express();
 app.use(express.json());
@@ -179,8 +180,32 @@ app.post("/conversation_ask/follow_up", async (req, res) => {
                 conversationId : conversation.id
             }
         })
+        const conversationForQueries = await prisma.conversation.findFirst({
+            where:{
+                userId:userId, id:conversationId
+            },include:{
+                messages:{
+                    where: {
+                        role: "User"
+                    },
+                    orderBy:{createdAt:"desc"},
+                }
+    
+            }
+        })
+        if(!conversationForQueries){
+            return res.json({message:"Couldnot find conversation"})
+        }
+        const previousQueries = conversationForQueries.messages
+        .reverse()
+        .map(message => message.content)
+        .join("\n");
+        
+        const modelGeneratedQuery = (await contextualizeQuery(query, previousQueries)).trim() || query;
+        console.log("ORIGINAL QUERY:", query);
+        console.log("CONTEXTUALIZED QUERY:", modelGeneratedQuery);
 
-        const webSearchResults = await webSearch(query)
+        const webSearchResults = await webSearch(modelGeneratedQuery)
         
         const summaryWebSearchResult= await summaryWebSearch(query,webSearchResults)
 
