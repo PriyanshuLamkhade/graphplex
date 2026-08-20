@@ -74,10 +74,10 @@ app.get("/conversations/:conversationId",middleware,async(req,res)=>{
     }
 })
 
-app.post("/conversation_ask",async (req, res) => {
+app.post("/conversation_ask", middleware, async (req, res) => {
     try {
         const { query } = req.body
-        const userId = "388729c8-8c2d-4406-b357-86c65ad0bbf0"
+        const userId = req.userId
         if(!userId){
             return res.json({
                     message: "User Id not found"
@@ -149,10 +149,10 @@ app.post("/conversation_ask",async (req, res) => {
     }
 });
 
-app.post("/conversation_ask/follow_up", async (req, res) => {
+app.post("/conversation_ask/follow_up", middleware, async (req, res) => {
     try {
         const {conversationId,query} = req.body
-        const userId = "388729c8-8c2d-4406-b357-86c65ad0bbf0"
+        const userId = req.userId
     
         const conversation = await prisma.conversation.findFirst({
             where:{

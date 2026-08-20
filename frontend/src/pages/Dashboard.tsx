@@ -191,11 +191,18 @@ export default function Dashboard() {
     scrollToBottom();
 
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
       if (!activeConversationId) {
         // First query in new conversation -> POST /conversation_ask
-        const res = await axios.post(`${BACKEND_URL}/conversation_ask`, {
-          query: queryText,
-        });
+        const res = await axios.post(
+          `${BACKEND_URL}/conversation_ask`,
+          { query: queryText },
+          { headers: { Authorization: token } }
+        );
 
         if (res.data) {
           const convId = res.data.conversation?.id;
@@ -227,10 +234,14 @@ export default function Dashboard() {
         }
       } else {
         // Follow-up query -> POST /conversation_ask/follow_up
-        const res = await axios.post(`${BACKEND_URL}/conversation_ask/follow_up`, {
-          conversationId: activeConversationId,
-          query: queryText,
-        });
+        const res = await axios.post(
+          `${BACKEND_URL}/conversation_ask/follow_up`,
+          {
+            conversationId: activeConversationId,
+            query: queryText,
+          },
+          { headers: { Authorization: token } }
+        );
 
         if (res.data) {
           const assistantMsg = res.data.message;
