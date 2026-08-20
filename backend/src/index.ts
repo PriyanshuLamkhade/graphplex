@@ -202,8 +202,6 @@ app.post("/conversation_ask/follow_up", async (req, res) => {
         .join("\n");
         
         const modelGeneratedQuery = (await contextualizeQuery(query, previousQueries)).trim() || query;
-        console.log("ORIGINAL QUERY:", query);
-        console.log("CONTEXTUALIZED QUERY:", modelGeneratedQuery);
 
         const webSearchResults = await webSearch(modelGeneratedQuery)
         

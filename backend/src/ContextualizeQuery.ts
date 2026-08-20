@@ -14,7 +14,6 @@ export async function contextualizeQuery(query:string,previousQueries:string){
         think: false
         
     })
-    console.log("CONTEXTUALIZER RESPONSE:", response);
     const modelGeneratedQuery = response.message.content.trim();
 
 if (!modelGeneratedQuery) {

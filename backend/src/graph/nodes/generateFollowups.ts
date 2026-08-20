@@ -24,11 +24,6 @@ export async function generateFollowUps(state: ResearchStateType) {
         num_predict: 256
     }
   })
-  console.log("FOLLOWUP RAW:", response.message.content);
-//   const parsed = FollowUpSchema.parse(
-//   JSON.parse(response.message.content)
-// );
-
 
   return {
     followUpQuestions: response.message.content
