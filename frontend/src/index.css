@@ -8,10 +8,39 @@
  
 }
 
-body{
-  background-color: rgb(26, 25, 25);
-  color:white
+body {
+  background-color: #171717;
+  color: white;
 }
-button{
+
+button {
   cursor: pointer;
+}
+
+/* Custom Scrollbars to match page background */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2e2e2e;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2e2e2e #171717;
 }

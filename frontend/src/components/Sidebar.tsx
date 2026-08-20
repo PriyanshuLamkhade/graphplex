@@ -65,9 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           <div className="flex flex-col items-center gap-3 mt-2 text-zinc-400">
-            <button className="p-2 hover:bg-[#242424] rounded-lg hover:text-white transition-colors" title="Computer">
-              <Monitor className="w-4 h-4" />
-            </button>
             <button className="p-2 hover:bg-[#242424] rounded-lg hover:text-white transition-colors" title="Artifacts">
               <Box className="w-4 h-4" />
             </button>
@@ -134,10 +131,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation Section */}
         <div className="px-2 space-y-0.5 text-xs text-zinc-400 font-medium">
-          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#222222] hover:text-white transition-colors">
-            <Monitor className="w-4 h-4" />
-            <span>Computer</span>
-          </button>
           <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#222222] hover:text-white transition-colors">
             <Box className="w-4 h-4" />
             <span>Artifacts</span>

@@ -86,14 +86,6 @@ export const InputBox: React.FC<InputBoxProps> = ({
             <span>{searchMode}</span>
             <ChevronDown className="w-3 h-3 text-zinc-500" />
           </button>
-
-          <button
-            type="button"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#262626] hover:bg-[#303030] border border-[#333] text-xs font-medium text-zinc-300 hover:text-white transition-colors"
-          >
-            <Monitor className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Computer</span>
-          </button>
         </div>
 
         {/* Right Toolbar Options */}
